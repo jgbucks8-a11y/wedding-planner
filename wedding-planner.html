@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wedding Planner - Free Planning Made Easy</title>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/react.production.min.js"></script>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+        
+        .wedding-planner {
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            background: #fafafa;
+        }
+        
+        .wedding-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeIn 0.6s ease;
+        }
+        
+        .wedding-title {
+            font-size: 36px;
+            font-weight: 300;
+            margin: 0;
+            font-family: 'Georgia', serif;
+            letter-spacing: 1px;
+            color: #1a1a1a;
+        }
+        
+        .wedding-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-top: 8px;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            gap: 1px;
+            justify-content: center;
+            margin-bottom: 2rem;
+            background: #ddd;
+            border-radius: 8px;
+            padding: 4px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+            flex-wrap: wrap;
+        }
+        
+        .nav-tab {
+            padding: 10px 16px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 13px;
+            color: #666;
+            transition: all 0.3s;
+            border-radius: 6px;
+            white-space: nowrap;
+        }
+        
+        .nav-tab.active {
+            background: white;
+            color: #1a1a1a;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .nav-tab:hover {
+            color: #1a1a1a;
+        }
+        
+        .content-grid {
+            max-width: 900px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+        
+        .card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 1.5rem;
+            animation: slideUp 0.5s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .card-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: #1a1a1a;
+            margin: 0 0 1rem 0;
+        }
+        
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+        
+        .stat-label {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .stat-value {
+            font-size: 14px;
+            font-weight: 500;
+            color: #1a1a1a;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #999;
+            box-shadow: 0 0 0 2px rgba(0,0,0,0.05);
+        }
+        
+        .button {
+            padding: 10px 16px;
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .button:hover {
+            background: #eee;
+        }
+        
+        .button-primary {
+            background: #1a1a1a;
+            color: white;
+            border: none;
+            font-weight: 500;
+        }
+        
+        .button-primary:hover {
+            background: #333;
+        }
+        
+        .button-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        
+        .guest-item {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+        }
+        
+        .guest-name {
+            font-weight: 500;
+            color: #1a1a1a;
+            flex: 1;
+        }
+        
+        .guest-email {
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .rsvp-badge {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        
+        .rsvp-yes {
+            background: #E8F5E9;
+            color: #2E7D32;
+        }
+        
+        .rsvp-no {
+            background: #FFEBEE;
+            color: #C62828;
+        }
+        
+        .rsvp-pending {
+            background: #FFF3E0;
+            color: #E65100;
+        }
+        
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .task-item.completed {
+            opacity: 0.6;
+        }
+        
+        .task-item.completed .task-text {
+            text-decoration: line-through;
+        }
+        
+        .task-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #1a1a1a;
+        }
+        
+        .task-text {
+            flex: 1;
+            font-size: 14px;
+            color: #1a1a1a;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #1a1a1a;
+            transition: width 0.3s;
+        }
+        
+        .section {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .section-card {
+            margin-bottom: 2rem;
+        }
+        
+        .guest-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        select {
+            padding: 6px;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .button-icon {
+            padding: 8px 12px;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const WeddingPlanner = () => {
+            const [weddingInfo, setWeddingInfo] = React.useState(() => {
+                const saved = localStorage.getItem('wedding:info');
+                return saved ? JSON.parse(saved) : {
+                    partnerName1: '',
+                    partnerName2: '',
+                    date: '',
+                    location: '',
+                    theme: ''
+                };
+            });
+            
+            const [guests, setGuests] = React.useState(() => {
+                const saved = localStorage.getItem('wedding:guests');
+                return saved ? JSON.parse(saved) : [];
+            });
+            
+            const [tasks, setTasks] = React.useState(() => {
+                const saved = localStorage.getItem('wedding:tasks');
+                return saved ? JSON.parse(saved) : [];
+            });
+            
+            const [view, setView] = React.useState('dashboard');
+            const [newGuest, setNewGuest] = React.useState({ name: '', email: '', rsvp: 'pending' });
+            const [newTask, setNewTask] = React.useState('');
+            
+            // Save to localStorage whenever data changes
+            React.useEffect(() => {
+                localStorage.setItem('wedding:info', JSON.stringify(weddingInfo));
+            }, [weddingInfo]);
+            
+            React.useEffect(() => {
+                localStorage.setItem('wedding:guests', JSON.stringify(guests));
+            }, [guests]);
+            
+            React.useEffect(() => {
+                localStorage.setItem('wedding:tasks', JSON.stringify(tasks));
+            }, [tasks]);
+            
+            const saveWeddingInfo = () => {
+                // Data is auto-saved via useEffect
+            };
+            
+            const addGuest = () => {
+                if (newGuest.name.trim()) {
+                    setGuests([...guests, { ...newGuest, id: Date.now() }]);
+                    setNewGuest({ name: '', email: '', rsvp: 'pending' });
+                }
+            };
+            
+            const updateGuestRsvp = (id, rsvp) => {
+                setGuests(guests.map(g => g.id === id ? { ...g, rsvp } : g));
+            };
+            
+            const deleteGuest = (id) => {
+                setGuests(guests.filter(g => g.id !== id));
+            };
+            
+            const addTask = () => {
+                if (newTask.trim()) {
+                    setTasks([...tasks, { id: Date.now(), text: newTask, completed: false }]);
+                    setNewTask('');
+                }
+            };
+            
+            const toggleTask = (id) => {
+                setTasks(tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
+            };
+            
+            const rsvpYes = guests.filter(g => g.rsvp === 'yes').length;
+            const rsvpNo = guests.filter(g => g.rsvp === 'no').length;
+            const rsvpPending = guests.filter(g => g.rsvp === 'pending').length;
+            const tasksComplete = tasks.filter(t => t.completed).length;
+            
+            return (
+                <div className="wedding-planner">
+                    <div className="wedding-header">
+                        <h1 className="wedding-title">Our Wedding</h1>
+                        <p className="wedding-subtitle">Free wedding planning, your way</p>
+                    </div>
+                    
+                    <div className="nav-tabs">
+                        <button 
+                            className={`nav-tab ${view === 'dashboard' ? 'active' : ''}`}
+                            onClick={() => setView('dashboard')}
+                        >
+                            <i className="fas fa-home" style={{ marginRight: '6px' }}></i>Dashboard
+                        </button>
+                        <button 
+                            className={`nav-tab ${view === 'guests' ? 'active' : ''}`}
+                            onClick={() => setView('guests')}
+                        >
+                            <i className="fas fa-users" style={{ marginRight: '6px' }}></i>Guests ({guests.length})
+                        </button>
+                        <button 
+                            className={`nav-tab ${view === 'tasks' ? 'active' : ''}`}
+                            onClick={() => setView('tasks')}
+                        >
+                            <i className="fas fa-check-square" style={{ marginRight: '6px' }}></i>Checklist
+                        </button>
+                        <button 
+                            className={`nav-tab ${view === 'info' ? 'active' : ''}`}
+                            onClick={() => setView('info')}
+                        >
+                            <i className="fas fa-cog" style={{ marginRight: '6px' }}></i>Details
+                        </button>
+                    </div>
+                    
+                    {view === 'dashboard' && (
+                        <div className="content-grid">
+                            <div className="card">
+                                <h3 className="card-title">Wedding Details</h3>
+                                {weddingInfo.partnerName1 ? (
+                                    <>
+                                        <div style={{ marginBottom: '1rem' }}>
+                                            <p style={{ margin: '8px 0', fontSize: '14px', fontWeight: '500' }}>
+                                                {weddingInfo.partnerName1} & {weddingInfo.partnerName2}
+                                            </p>
+                                            <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>
+                                                {weddingInfo.date}
+                                            </p>
+                                            <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>
+                                                {weddingInfo.location}
+                                            </p>
+                                        </div>
+                                        <button className="button" onClick={() => setView('info')} style={{ width: '100%' }}>
+                                            Edit Details
+                                        </button>
+                                    </>
+                                ) : (
+                                    <button className="button-primary" onClick={() => setView('info')} style={{ width: '100%' }}>
+                                        Add Wedding Details
+                                    </button>
+                                )}
+                            </div>
+                            
+                            <div className="card">
+                                <h3 className="card-title">Guest Summary</h3>
+                                <div className="stat-row">
+                                    <span className="stat-label">Total Invited</span>
+                                    <span className="stat-value">{guests.length}</span>
+                                </div>
+                                <div className="stat-row">
+                                    <span className="stat-label">Confirmed</span>
+                                    <span className="stat-value" style={{ color: '#2E7D32' }}>{rsvpYes}</span>
+                                </div>
+                                <div className="stat-row">
+                                    <span className="stat-label">Declined</span>
+                                    <span className="stat-value" style={{ color: '#C62828' }}>{rsvpNo}</span>
+                                </div>
+                                <div className="stat-row">
+                                    <span className="stat-label">Awaiting Response</span>
+                                    <span className="stat-value" style={{ color: '#E65100' }}>{rsvpPending}</span>
+                                </div>
+                                <div className="progress-bar">
+                                    <div className="progress-fill" style={{ width: guests.length > 0 ? `${(rsvpYes / guests.length) * 100}%` : '0%' }}></div>
+                                </div>
+                            </div>
+                            
+                            <div className="card">
+                                <h3 className="card-title">Planning Progress</h3>
+                                <div className="stat-row">
+                                    <span className="stat-label">Tasks Completed</span>
+                                    <span className="stat-value">{tasksComplete} of {tasks.length}</span>
+                                </div>
+                                <div style={{ marginTop: '1rem' }}>
+                                    <div className="progress-bar">
+                                        <div className="progress-fill" style={{ width: tasks.length > 0 ? `${(tasksComplete / tasks.length) * 100}%` : '0%' }}></div>
+                                    </div>
+                                </div>
+                                {tasks.length > 0 && (
+                                    <button className="button" onClick={() => setView('tasks')} style={{ width: '100%', marginTop: '1rem' }}>
+                                        View Checklist
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                    
+                    {view === 'guests' && (
+                        <div className="section">
+                            <div className="card section-card">
+                                <h3 className="card-title">Add Guest</h3>
+                                <div className="form-group">
+                                    <label className="form-label">Name</label>
+                                    <input 
+                                        type="text"
+                                        value={newGuest.name}
+                                        onChange={(e) => setNewGuest({ ...newGuest, name: e.target.value })}
+                                        onKeyPress={(e) => e.key === 'Enter' && addGuest()}
+                                        placeholder="Guest name"
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label className="form-label">Email</label>
+                                    <input 
+                                        type="email"
+                                        value={newGuest.email}
+                                        onChange={(e) => setNewGuest({ ...newGuest, email: e.target.value })}
+                                        onKeyPress={(e) => e.key === 'Enter' && addGuest()}
+                                        placeholder="guest@example.com"
+                                    />
+                                </div>
+                                <button className="button-primary" onClick={addGuest} style={{ width: '100%' }}>
+                                    Add Guest
+                                </button>
+                            </div>
+                            
+                            <div className="card">
+                                <h3 className="card-title">Guest List ({guests.length})</h3>
+                                <div className="guest-list">
+                                    {guests.length === 0 ? (
+                                        <p style={{ fontSize: '13px', color: '#999', textAlign: 'center', margin: '2rem 0' }}>
+                                            No guests added yet
+                                        </p>
+                                    ) : (
+                                        guests.map(guest => (
+                                            <div key={guest.id} className="guest-item">
+                                                <div style={{ flex: 1 }}>
+                                                    <div className="guest-name">{guest.name}</div>
+                                                    {guest.email && <div className="guest-email">{guest.email}</div>}
+                                                </div>
+                                                <select 
+                                                    value={guest.rsvp}
+                                                    onChange={(e) => updateGuestRsvp(guest.id, e.target.value)}
+                                                    style={{ width: '100px' }}
+                                                >
+                                                    <option value="pending">Pending</option>
+                                                    <option value="yes">Yes</option>
+                                                    <option value="no">No</option>
+                                                </select>
+                                                <button 
+                                                    className="button button-icon"
+                                                    onClick={() => deleteGuest(guest.id)}
+                                                    title="Delete guest"
+                                                >
+                                                    <i className="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    
+                    {view === 'tasks' && (
+                        <div className="section">
+                            <div className="card section-card">
+                                <h3 className="card-title">Add Task</h3>
+                                <div className="form-group">
+                                    <input 
+                                        type="text"
+                                        value={newTask}
+                                        onChange={(e) => setNewTask(e.target.value)}
+                                        onKeyPress={(e) => e.key === 'Enter' && addTask()}
+                                        placeholder="e.g., Book photographer, Send invitations..."
+                                    />
+                                </div>
+                                <button className="button-primary" onClick={addTask} style={{ width: '100%' }}>
+                                    Add Task
+                                </button>
+                            </div>
+                            
+                            <div className="card">
+                                <h3 className="card-title">Checklist ({tasksComplete} of {tasks.length})</h3>
+                                {tasks.length === 0 ? (
+                                    <p style={{ fontSize: '13px', color: '#999', textAlign: 'center', margin: '2rem 0' }}>
+                                        No tasks yet. Start planning!
+                                    </p>
+                                ) : (
+                                    tasks.map(task => (
+                                        <div key={task.id} className={`task-item ${task.completed ? 'completed' : ''}`}>
+                                            <input 
+                                                type="checkbox"
+                                                className="task-checkbox"
+                                                checked={task.completed}
+                                                onChange={() => toggleTask(task.id)}
+                                            />
+                                            <span className="task-text">{task.text}</span>
+                                        </div>
+                                    ))
+                                )}
+                                <div className="progress-bar">
+                                    <div className="progress-fill" style={{ width: tasks.length > 0 ? `${(tasksComplete / tasks.length) * 100}%` : '0%' }}></div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    
+                    {view === 'info' && (
+                        <div className="section">
+                            <div className="card">
+                                <h3 className="card-title">Wedding Information</h3>
+                                <div className="form-group">
+                                    <label className="form-label">Partner Name 1</label>
+                                    <input 
+                                        type="text"
+                                        value={weddingInfo.partnerName1}
+                                        onChange={(e) => setWeddingInfo({ ...weddingInfo, partnerName1: e.target.value })}
+                                        placeholder="Your name"
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label className="form-label">Partner Name 2</label>
+                                    <input 
+                                        type="text"
+                                        value={weddingInfo.partnerName2}
+                                        onChange={(e) => setWeddingInfo({ ...weddingInfo, partnerName2: e.target.value })}
+                                        placeholder="Partner's name"
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label className="form-label">Wedding Date</label>
+                                    <input 
+                                        type="date"
+                                        value={weddingInfo.date}
+                                        onChange={(e) => setWeddingInfo({ ...weddingInfo, date: e.target.value })}
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label className="form-label">Location</label>
+                                    <input 
+                                        type="text"
+                                        value={weddingInfo.location}
+                                        onChange={(e) => setWeddingInfo({ ...weddingInfo, location: e.target.value })}
+                                        placeholder="City, venue name, etc."
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label className="form-label">Theme / Style (optional)</label>
+                                    <textarea 
+                                        value={weddingInfo.theme}
+                                        onChange={(e) => setWeddingInfo({ ...weddingInfo, theme: e.target.value })}
+                                        placeholder="Describe your wedding theme..."
+                                        rows="3"
+                                    />
+                                </div>
+                                <button className="button-primary" onClick={saveWeddingInfo} style={{ width: '100%' }}>
+                                    Save Details
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+        
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<WeddingPlanner />);
+    </script>
+</body>
+</html>
