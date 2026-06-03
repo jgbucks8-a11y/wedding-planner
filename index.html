@@ -4,9 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wedding Planner - Free Planning Made Easy</title>
-    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/react.production.min.js"></script>
-    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/react-dom.production.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -194,11 +191,6 @@
             background: #333;
         }
         
-        .button-sm {
-            padding: 6px 12px;
-            font-size: 12px;
-        }
-        
         .guest-item {
             background: #f5f5f5;
             padding: 12px;
@@ -220,29 +212,6 @@
         .guest-email {
             font-size: 12px;
             color: #999;
-        }
-        
-        .rsvp-badge {
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 500;
-            white-space: nowrap;
-        }
-        
-        .rsvp-yes {
-            background: #E8F5E9;
-            color: #2E7D32;
-        }
-        
-        .rsvp-no {
-            background: #FFEBEE;
-            color: #C62828;
-        }
-        
-        .rsvp-pending {
-            background: #FFF3E0;
-            color: #E65100;
         }
         
         .task-item {
@@ -303,15 +272,6 @@
             overflow-y: auto;
         }
         
-        select {
-            padding: 6px;
-        }
-        
-        .button-group {
-            display: flex;
-            gap: 8px;
-        }
-        
         .button-icon {
             padding: 8px 12px;
         }
@@ -320,357 +280,357 @@
 <body>
     <div id="root"></div>
     
-    <script type="text/babel">
-        const WeddingPlanner = () => {
-            const [weddingInfo, setWeddingInfo] = React.useState(() => {
-                const saved = localStorage.getItem('wedding:info');
-                return saved ? JSON.parse(saved) : {
+    <script>
+        class WeddingPlanner {
+            constructor() {
+                this.currentView = 'dashboard';
+                this.weddingInfo = this.loadData('wedding:info') || {
                     partnerName1: '',
                     partnerName2: '',
                     date: '',
                     location: '',
                     theme: ''
                 };
-            });
-            
-            const [guests, setGuests] = React.useState(() => {
-                const saved = localStorage.getItem('wedding:guests');
-                return saved ? JSON.parse(saved) : [];
-            });
-            
-            const [tasks, setTasks] = React.useState(() => {
-                const saved = localStorage.getItem('wedding:tasks');
-                return saved ? JSON.parse(saved) : [];
-            });
-            
-            const [view, setView] = React.useState('dashboard');
-            const [newGuest, setNewGuest] = React.useState({ name: '', email: '', rsvp: 'pending' });
-            const [newTask, setNewTask] = React.useState('');
-            
-            // Save to localStorage whenever data changes
-            React.useEffect(() => {
-                localStorage.setItem('wedding:info', JSON.stringify(weddingInfo));
-            }, [weddingInfo]);
-            
-            React.useEffect(() => {
-                localStorage.setItem('wedding:guests', JSON.stringify(guests));
-            }, [guests]);
-            
-            React.useEffect(() => {
-                localStorage.setItem('wedding:tasks', JSON.stringify(tasks));
-            }, [tasks]);
-            
-            const saveWeddingInfo = () => {
-                // Data is auto-saved via useEffect
-            };
-            
-            const addGuest = () => {
-                if (newGuest.name.trim()) {
-                    setGuests([...guests, { ...newGuest, id: Date.now() }]);
-                    setNewGuest({ name: '', email: '', rsvp: 'pending' });
+                this.guests = this.loadData('wedding:guests') || [];
+                this.tasks = this.loadData('wedding:tasks') || [];
+                this.init();
+            }
+
+            loadData(key) {
+                try {
+                    const data = localStorage.getItem(key);
+                    return data ? JSON.parse(data) : null;
+                } catch (e) {
+                    return null;
                 }
-            };
-            
-            const updateGuestRsvp = (id, rsvp) => {
-                setGuests(guests.map(g => g.id === id ? { ...g, rsvp } : g));
-            };
-            
-            const deleteGuest = (id) => {
-                setGuests(guests.filter(g => g.id !== id));
-            };
-            
-            const addTask = () => {
-                if (newTask.trim()) {
-                    setTasks([...tasks, { id: Date.now(), text: newTask, completed: false }]);
-                    setNewTask('');
-                }
-            };
-            
-            const toggleTask = (id) => {
-                setTasks(tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
-            };
-            
-            const rsvpYes = guests.filter(g => g.rsvp === 'yes').length;
-            const rsvpNo = guests.filter(g => g.rsvp === 'no').length;
-            const rsvpPending = guests.filter(g => g.rsvp === 'pending').length;
-            const tasksComplete = tasks.filter(t => t.completed).length;
-            
-            return (
-                <div className="wedding-planner">
-                    <div className="wedding-header">
-                        <h1 className="wedding-title">Our Wedding</h1>
-                        <p className="wedding-subtitle">Free wedding planning, your way</p>
-                    </div>
-                    
-                    <div className="nav-tabs">
-                        <button 
-                            className={`nav-tab ${view === 'dashboard' ? 'active' : ''}`}
-                            onClick={() => setView('dashboard')}
-                        >
-                            <i className="fas fa-home" style={{ marginRight: '6px' }}></i>Dashboard
-                        </button>
-                        <button 
-                            className={`nav-tab ${view === 'guests' ? 'active' : ''}`}
-                            onClick={() => setView('guests')}
-                        >
-                            <i className="fas fa-users" style={{ marginRight: '6px' }}></i>Guests ({guests.length})
-                        </button>
-                        <button 
-                            className={`nav-tab ${view === 'tasks' ? 'active' : ''}`}
-                            onClick={() => setView('tasks')}
-                        >
-                            <i className="fas fa-check-square" style={{ marginRight: '6px' }}></i>Checklist
-                        </button>
-                        <button 
-                            className={`nav-tab ${view === 'info' ? 'active' : ''}`}
-                            onClick={() => setView('info')}
-                        >
-                            <i className="fas fa-cog" style={{ marginRight: '6px' }}></i>Details
-                        </button>
-                    </div>
-                    
-                    {view === 'dashboard' && (
-                        <div className="content-grid">
-                            <div className="card">
-                                <h3 className="card-title">Wedding Details</h3>
-                                {weddingInfo.partnerName1 ? (
-                                    <>
-                                        <div style={{ marginBottom: '1rem' }}>
-                                            <p style={{ margin: '8px 0', fontSize: '14px', fontWeight: '500' }}>
-                                                {weddingInfo.partnerName1} & {weddingInfo.partnerName2}
-                                            </p>
-                                            <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>
-                                                {weddingInfo.date}
-                                            </p>
-                                            <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>
-                                                {weddingInfo.location}
-                                            </p>
-                                        </div>
-                                        <button className="button" onClick={() => setView('info')} style={{ width: '100%' }}>
-                                            Edit Details
-                                        </button>
-                                    </>
-                                ) : (
-                                    <button className="button-primary" onClick={() => setView('info')} style={{ width: '100%' }}>
-                                        Add Wedding Details
-                                    </button>
-                                )}
-                            </div>
-                            
-                            <div className="card">
-                                <h3 className="card-title">Guest Summary</h3>
-                                <div className="stat-row">
-                                    <span className="stat-label">Total Invited</span>
-                                    <span className="stat-value">{guests.length}</span>
-                                </div>
-                                <div className="stat-row">
-                                    <span className="stat-label">Confirmed</span>
-                                    <span className="stat-value" style={{ color: '#2E7D32' }}>{rsvpYes}</span>
-                                </div>
-                                <div className="stat-row">
-                                    <span className="stat-label">Declined</span>
-                                    <span className="stat-value" style={{ color: '#C62828' }}>{rsvpNo}</span>
-                                </div>
-                                <div className="stat-row">
-                                    <span className="stat-label">Awaiting Response</span>
-                                    <span className="stat-value" style={{ color: '#E65100' }}>{rsvpPending}</span>
-                                </div>
-                                <div className="progress-bar">
-                                    <div className="progress-fill" style={{ width: guests.length > 0 ? `${(rsvpYes / guests.length) * 100}%` : '0%' }}></div>
-                                </div>
-                            </div>
-                            
-                            <div className="card">
-                                <h3 className="card-title">Planning Progress</h3>
-                                <div className="stat-row">
-                                    <span className="stat-label">Tasks Completed</span>
-                                    <span className="stat-value">{tasksComplete} of {tasks.length}</span>
-                                </div>
-                                <div style={{ marginTop: '1rem' }}>
-                                    <div className="progress-bar">
-                                        <div className="progress-fill" style={{ width: tasks.length > 0 ? `${(tasksComplete / tasks.length) * 100}%` : '0%' }}></div>
-                                    </div>
-                                </div>
-                                {tasks.length > 0 && (
-                                    <button className="button" onClick={() => setView('tasks')} style={{ width: '100%', marginTop: '1rem' }}>
-                                        View Checklist
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-                    )}
-                    
-                    {view === 'guests' && (
-                        <div className="section">
-                            <div className="card section-card">
-                                <h3 className="card-title">Add Guest</h3>
-                                <div className="form-group">
-                                    <label className="form-label">Name</label>
-                                    <input 
-                                        type="text"
-                                        value={newGuest.name}
-                                        onChange={(e) => setNewGuest({ ...newGuest, name: e.target.value })}
-                                        onKeyPress={(e) => e.key === 'Enter' && addGuest()}
-                                        placeholder="Guest name"
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label className="form-label">Email</label>
-                                    <input 
-                                        type="email"
-                                        value={newGuest.email}
-                                        onChange={(e) => setNewGuest({ ...newGuest, email: e.target.value })}
-                                        onKeyPress={(e) => e.key === 'Enter' && addGuest()}
-                                        placeholder="guest@example.com"
-                                    />
-                                </div>
-                                <button className="button-primary" onClick={addGuest} style={{ width: '100%' }}>
-                                    Add Guest
-                                </button>
-                            </div>
-                            
-                            <div className="card">
-                                <h3 className="card-title">Guest List ({guests.length})</h3>
-                                <div className="guest-list">
-                                    {guests.length === 0 ? (
-                                        <p style={{ fontSize: '13px', color: '#999', textAlign: 'center', margin: '2rem 0' }}>
-                                            No guests added yet
-                                        </p>
-                                    ) : (
-                                        guests.map(guest => (
-                                            <div key={guest.id} className="guest-item">
-                                                <div style={{ flex: 1 }}>
-                                                    <div className="guest-name">{guest.name}</div>
-                                                    {guest.email && <div className="guest-email">{guest.email}</div>}
-                                                </div>
-                                                <select 
-                                                    value={guest.rsvp}
-                                                    onChange={(e) => updateGuestRsvp(guest.id, e.target.value)}
-                                                    style={{ width: '100px' }}
-                                                >
-                                                    <option value="pending">Pending</option>
-                                                    <option value="yes">Yes</option>
-                                                    <option value="no">No</option>
-                                                </select>
-                                                <button 
-                                                    className="button button-icon"
-                                                    onClick={() => deleteGuest(guest.id)}
-                                                    title="Delete guest"
-                                                >
-                                                    <i className="fas fa-trash"></i>
-                                                </button>
-                                            </div>
-                                        ))
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                    
-                    {view === 'tasks' && (
-                        <div className="section">
-                            <div className="card section-card">
-                                <h3 className="card-title">Add Task</h3>
-                                <div className="form-group">
-                                    <input 
-                                        type="text"
-                                        value={newTask}
-                                        onChange={(e) => setNewTask(e.target.value)}
-                                        onKeyPress={(e) => e.key === 'Enter' && addTask()}
-                                        placeholder="e.g., Book photographer, Send invitations..."
-                                    />
-                                </div>
-                                <button className="button-primary" onClick={addTask} style={{ width: '100%' }}>
-                                    Add Task
-                                </button>
-                            </div>
-                            
-                            <div className="card">
-                                <h3 className="card-title">Checklist ({tasksComplete} of {tasks.length})</h3>
-                                {tasks.length === 0 ? (
-                                    <p style={{ fontSize: '13px', color: '#999', textAlign: 'center', margin: '2rem 0' }}>
-                                        No tasks yet. Start planning!
+            }
+
+            saveData(key, data) {
+                localStorage.setItem(key, JSON.stringify(data));
+            }
+
+            init() {
+                this.render();
+                this.attachEventListeners();
+            }
+
+            attachEventListeners() {
+                document.querySelectorAll('.nav-tab').forEach(tab => {
+                    tab.addEventListener('click', (e) => {
+                        const view = e.target.closest('.nav-tab').dataset.view;
+                        this.currentView = view;
+                        this.render();
+                    });
+                });
+            }
+
+            getStats() {
+                return {
+                    rsvpYes: this.guests.filter(g => g.rsvp === 'yes').length,
+                    rsvpNo: this.guests.filter(g => g.rsvp === 'no').length,
+                    rsvpPending: this.guests.filter(g => g.rsvp === 'pending').length,
+                    tasksComplete: this.tasks.filter(t => t.completed).length
+                };
+            }
+
+            renderDashboard() {
+                const stats = this.getStats();
+                const rsvpPercent = this.guests.length > 0 ? (stats.rsvpYes / this.guests.length) * 100 : 0;
+                const tasksPercent = this.tasks.length > 0 ? (stats.tasksComplete / this.tasks.length) * 100 : 0;
+
+                return `
+                    <div class="content-grid">
+                        <div class="card">
+                            <h3 class="card-title">Wedding Details</h3>
+                            ${this.weddingInfo.partnerName1 ? `
+                                <div style="margin-bottom: 1rem;">
+                                    <p style="margin: 8px 0; font-size: 14px; font-weight: 500;">
+                                        ${this.weddingInfo.partnerName1} & ${this.weddingInfo.partnerName2}
                                     </p>
-                                ) : (
-                                    tasks.map(task => (
-                                        <div key={task.id} className={`task-item ${task.completed ? 'completed' : ''}`}>
-                                            <input 
-                                                type="checkbox"
-                                                className="task-checkbox"
-                                                checked={task.completed}
-                                                onChange={() => toggleTask(task.id)}
-                                            />
-                                            <span className="task-text">{task.text}</span>
-                                        </div>
-                                    ))
-                                )}
-                                <div className="progress-bar">
-                                    <div className="progress-fill" style={{ width: tasks.length > 0 ? `${(tasksComplete / tasks.length) * 100}%` : '0%' }}></div>
+                                    <p style="margin: 4px 0; font-size: 13px; color: #666;">
+                                        ${this.weddingInfo.date}
+                                    </p>
+                                    <p style="margin: 4px 0; font-size: 13px; color: #666;">
+                                        ${this.weddingInfo.location}
+                                    </p>
                                 </div>
-                            </div>
-                        </div>
-                    )}
-                    
-                    {view === 'info' && (
-                        <div className="section">
-                            <div className="card">
-                                <h3 className="card-title">Wedding Information</h3>
-                                <div className="form-group">
-                                    <label className="form-label">Partner Name 1</label>
-                                    <input 
-                                        type="text"
-                                        value={weddingInfo.partnerName1}
-                                        onChange={(e) => setWeddingInfo({ ...weddingInfo, partnerName1: e.target.value })}
-                                        placeholder="Your name"
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label className="form-label">Partner Name 2</label>
-                                    <input 
-                                        type="text"
-                                        value={weddingInfo.partnerName2}
-                                        onChange={(e) => setWeddingInfo({ ...weddingInfo, partnerName2: e.target.value })}
-                                        placeholder="Partner's name"
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label className="form-label">Wedding Date</label>
-                                    <input 
-                                        type="date"
-                                        value={weddingInfo.date}
-                                        onChange={(e) => setWeddingInfo({ ...weddingInfo, date: e.target.value })}
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label className="form-label">Location</label>
-                                    <input 
-                                        type="text"
-                                        value={weddingInfo.location}
-                                        onChange={(e) => setWeddingInfo({ ...weddingInfo, location: e.target.value })}
-                                        placeholder="City, venue name, etc."
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label className="form-label">Theme / Style (optional)</label>
-                                    <textarea 
-                                        value={weddingInfo.theme}
-                                        onChange={(e) => setWeddingInfo({ ...weddingInfo, theme: e.target.value })}
-                                        placeholder="Describe your wedding theme..."
-                                        rows="3"
-                                    />
-                                </div>
-                                <button className="button-primary" onClick={saveWeddingInfo} style={{ width: '100%' }}>
-                                    Save Details
+                                <button class="button" onclick="app.currentView='info'; app.render();" style="width: 100%;">
+                                    Edit Details
                                 </button>
+                            ` : `
+                                <button class="button-primary" onclick="app.currentView='info'; app.render();" style="width: 100%;">
+                                    Add Wedding Details
+                                </button>
+                            `}
+                        </div>
+
+                        <div class="card">
+                            <h3 class="card-title">Guest Summary</h3>
+                            <div class="stat-row">
+                                <span class="stat-label">Total Invited</span>
+                                <span class="stat-value">${this.guests.length}</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Confirmed</span>
+                                <span class="stat-value" style="color: #2E7D32;">${stats.rsvpYes}</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Declined</span>
+                                <span class="stat-value" style="color: #C62828;">${stats.rsvpNo}</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Awaiting Response</span>
+                                <span class="stat-value" style="color: #E65100;">${stats.rsvpPending}</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${rsvpPercent}%;"></div>
                             </div>
                         </div>
-                    )}
-                </div>
-            );
-        };
-        
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<WeddingPlanner />);
+
+                        <div class="card">
+                            <h3 class="card-title">Planning Progress</h3>
+                            <div class="stat-row">
+                                <span class="stat-label">Tasks Completed</span>
+                                <span class="stat-value">${stats.tasksComplete} of ${this.tasks.length}</span>
+                            </div>
+                            <div style="margin-top: 1rem;">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: ${tasksPercent}%;"></div>
+                                </div>
+                            </div>
+                            ${this.tasks.length > 0 ? `
+                                <button class="button" onclick="app.currentView='tasks'; app.render();" style="width: 100%; margin-top: 1rem;">
+                                    View Checklist
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+
+            renderGuests() {
+                return `
+                    <div class="section">
+                        <div class="card section-card">
+                            <h3 class="card-title">Add Guest</h3>
+                            <div class="form-group">
+                                <label class="form-label">Name</label>
+                                <input type="text" id="guestName" placeholder="Guest name">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Email</label>
+                                <input type="email" id="guestEmail" placeholder="guest@example.com">
+                            </div>
+                            <button class="button-primary" onclick="app.addGuest();" style="width: 100%;">
+                                Add Guest
+                            </button>
+                        </div>
+
+                        <div class="card">
+                            <h3 class="card-title">Guest List (${this.guests.length})</h3>
+                            <div class="guest-list">
+                                ${this.guests.length === 0 ? `
+                                    <p style="font-size: 13px; color: #999; text-align: center; margin: 2rem 0;">
+                                        No guests added yet
+                                    </p>
+                                ` : this.guests.map((guest, idx) => `
+                                    <div class="guest-item">
+                                        <div style="flex: 1;">
+                                            <div class="guest-name">${guest.name}</div>
+                                            ${guest.email ? `<div class="guest-email">${guest.email}</div>` : ''}
+                                        </div>
+                                        <select onchange="app.updateGuestRsvp(${idx}, this.value);" style="width: 100px;">
+                                            <option value="pending" ${guest.rsvp === 'pending' ? 'selected' : ''}>Pending</option>
+                                            <option value="yes" ${guest.rsvp === 'yes' ? 'selected' : ''}>Yes</option>
+                                            <option value="no" ${guest.rsvp === 'no' ? 'selected' : ''}>No</option>
+                                        </select>
+                                        <button class="button button-icon" onclick="app.deleteGuest(${idx});" title="Delete guest">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            renderTasks() {
+                const stats = this.getStats();
+                const tasksPercent = this.tasks.length > 0 ? (stats.tasksComplete / this.tasks.length) * 100 : 0;
+
+                return `
+                    <div class="section">
+                        <div class="card section-card">
+                            <h3 class="card-title">Add Task</h3>
+                            <div class="form-group">
+                                <input type="text" id="newTask" placeholder="e.g., Book photographer, Send invitations..." onkeypress="if(event.key==='Enter') app.addTask();">
+                            </div>
+                            <button class="button-primary" onclick="app.addTask();" style="width: 100%;">
+                                Add Task
+                            </button>
+                        </div>
+
+                        <div class="card">
+                            <h3 class="card-title">Checklist (${stats.tasksComplete} of ${this.tasks.length})</h3>
+                            ${this.tasks.length === 0 ? `
+                                <p style="font-size: 13px; color: #999; text-align: center; margin: 2rem 0;">
+                                    No tasks yet. Start planning!
+                                </p>
+                            ` : this.tasks.map((task, idx) => `
+                                <div class="task-item ${task.completed ? 'completed' : ''}">
+                                    <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} onchange="app.toggleTask(${idx});">
+                                    <span class="task-text">${task.text}</span>
+                                </div>
+                            `).join('')}
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${tasksPercent}%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            renderInfo() {
+                return `
+                    <div class="section">
+                        <div class="card">
+                            <h3 class="card-title">Wedding Information</h3>
+                            <div class="form-group">
+                                <label class="form-label">Partner Name 1</label>
+                                <input type="text" id="name1" value="${this.weddingInfo.partnerName1}" placeholder="Your name" onchange="app.updateWeddingInfo();">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Partner Name 2</label>
+                                <input type="text" id="name2" value="${this.weddingInfo.partnerName2}" placeholder="Partner's name" onchange="app.updateWeddingInfo();">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Wedding Date</label>
+                                <input type="date" id="date" value="${this.weddingInfo.date}" onchange="app.updateWeddingInfo();">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Location</label>
+                                <input type="text" id="location" value="${this.weddingInfo.location}" placeholder="City, venue name, etc." onchange="app.updateWeddingInfo();">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Theme / Style (optional)</label>
+                                <textarea id="theme" placeholder="Describe your wedding theme..." rows="3" onchange="app.updateWeddingInfo();">${this.weddingInfo.theme}</textarea>
+                            </div>
+                            <button class="button-primary" onclick="app.saveInfo();" style="width: 100%;">
+                                Save Details
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            render() {
+                const navHTML = `
+                    <div class="wedding-header">
+                        <h1 class="wedding-title">Our Wedding</h1>
+                        <p class="wedding-subtitle">Free wedding planning, your way</p>
+                    </div>
+
+                    <div class="nav-tabs">
+                        <button class="nav-tab ${this.currentView === 'dashboard' ? 'active' : ''}" data-view="dashboard">
+                            <i class="fas fa-home" style="margin-right: 6px;"></i>Dashboard
+                        </button>
+                        <button class="nav-tab ${this.currentView === 'guests' ? 'active' : ''}" data-view="guests">
+                            <i class="fas fa-users" style="margin-right: 6px;"></i>Guests (${this.guests.length})
+                        </button>
+                        <button class="nav-tab ${this.currentView === 'tasks' ? 'active' : ''}" data-view="tasks">
+                            <i class="fas fa-check-square" style="margin-right: 6px;"></i>Checklist
+                        </button>
+                        <button class="nav-tab ${this.currentView === 'info' ? 'active' : ''}" data-view="info">
+                            <i class="fas fa-cog" style="margin-right: 6px;"></i>Details
+                        </button>
+                    </div>
+                `;
+
+                let contentHTML = '';
+                switch(this.currentView) {
+                    case 'dashboard':
+                        contentHTML = this.renderDashboard();
+                        break;
+                    case 'guests':
+                        contentHTML = this.renderGuests();
+                        break;
+                    case 'tasks':
+                        contentHTML = this.renderTasks();
+                        break;
+                    case 'info':
+                        contentHTML = this.renderInfo();
+                        break;
+                }
+
+                const root = document.getElementById('root');
+                root.innerHTML = `
+                    <div class="wedding-planner">
+                        ${navHTML}
+                        ${contentHTML}
+                    </div>
+                `;
+
+                this.attachEventListeners();
+            }
+
+            addGuest() {
+                const name = document.getElementById('guestName')?.value;
+                const email = document.getElementById('guestEmail')?.value;
+                if (name?.trim()) {
+                    this.guests.push({ id: Date.now(), name, email: email || '', rsvp: 'pending' });
+                    this.saveData('wedding:guests', this.guests);
+                    this.render();
+                }
+            }
+
+            updateGuestRsvp(idx, rsvp) {
+                if (this.guests[idx]) {
+                    this.guests[idx].rsvp = rsvp;
+                    this.saveData('wedding:guests', this.guests);
+                    this.render();
+                }
+            }
+
+            deleteGuest(idx) {
+                this.guests.splice(idx, 1);
+                this.saveData('wedding:guests', this.guests);
+                this.render();
+            }
+
+            addTask() {
+                const text = document.getElementById('newTask')?.value;
+                if (text?.trim()) {
+                    this.tasks.push({ id: Date.now(), text, completed: false });
+                    this.saveData('wedding:tasks', this.tasks);
+                    this.render();
+                }
+            }
+
+            toggleTask(idx) {
+                if (this.tasks[idx]) {
+                    this.tasks[idx].completed = !this.tasks[idx].completed;
+                    this.saveData('wedding:tasks', this.tasks);
+                    this.render();
+                }
+            }
+
+            updateWeddingInfo() {
+                this.weddingInfo.partnerName1 = document.getElementById('name1')?.value || '';
+                this.weddingInfo.partnerName2 = document.getElementById('name2')?.value || '';
+                this.weddingInfo.date = document.getElementById('date')?.value || '';
+                this.weddingInfo.location = document.getElementById('location')?.value || '';
+                this.weddingInfo.theme = document.getElementById('theme')?.value || '';
+                this.saveData('wedding:info', this.weddingInfo);
+            }
+
+            saveInfo() {
+                this.updateWeddingInfo();
+                this.render();
+            }
+        }
+
+        const app = new WeddingPlanner();
     </script>
 </body>
 </html>
